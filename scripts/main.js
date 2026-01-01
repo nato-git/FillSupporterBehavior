@@ -6,6 +6,7 @@ server.world.afterEvents.itemUse.subscribe((ev) => {
   const player = ev.source;
   const item = ev.itemStack;
   const playerId = player.id;
+
   if (item.typeId === 'fill:locater') {
     const loc = player.location;
     const currentPos = {
@@ -29,35 +30,44 @@ server.world.afterEvents.itemUse.subscribe((ev) => {
       player.sendMessage('§c座標個数が足りません Insufficient coordinates');
       return;
     }
+    player.sendMessage(`§e[Debug] インベントリを検索中...`);
     const blockId = getBlockFromSlot(player);
     if (!blockId) {
       player.sendMessage(
-        '§cスロット内にアイテムが見つかりません No found item in slot'
+        '§cブロックが見つかりません (fill:slotの中にブロックを入れてください)'
       );
       return;
     }
+
+    // 設置用メッセージ
+    player.sendMessage(`§bExecuting: ${blockId}`);
+
     const p1 = list[0];
     const p2 = list[1];
-    player.runCommandAsync(
-      `fill ${p1.x} ${p1.y} ${p1.z} ${p2.x} ${p2.y} ${p2.z} ${blockId}`
-    );
+
+    const command = `fill ${p1.x} ${p1.y} ${p1.z} ${p2.x} ${p2.y} ${p2.z} ${blockId}`;
+    player
+      .runCommandAsync(command)
+      .then(() => {
+        player.sendMessage('§aFill Success!');
+      })
+      .catch((err) => {
+        player.sendMessage(`§cError: '${blockId}' は無効なブロックIDです`);
+      });
   }
 });
 
 function getBlockFromSlot(player) {
   const inventory = player.getComponent('minecraft:inventory').container;
-
-  for (let i = 0; i < inventory.size; i++) {
-    const item = inventory.getItem(i);
-    if (item && item.typeId === 'fill:slot') {
-      const storage = item.getComponent('minecraft:storage_item');
-      if (storage && storage.container) {
-        const firstItem = storage.container.getItem(0);
-        if (firstItem) return firstItem.typeId;
-      }
-    }
+  const slotItem = inventory.getItem(9);
+  const offhand = player
+    .getComponent('minecraft:equippable')
+    .getEquipment('Offhand');
+  if (slotItem && offhand.typeId === 'fill:slot') {
+    return slotItem.typeId;
+  } else {
+    return null;
   }
-  return null;
 }
 
 server.system.afterEvents.scriptEventReceive.subscribe((ev) => {
@@ -67,6 +77,11 @@ server.system.afterEvents.scriptEventReceive.subscribe((ev) => {
       player.runCommandAsync(`give @s fill:locater`);
       player.runCommandAsync(`give @s fill:fill_tool`);
       player.runCommandAsync(`give @s fill:slot`);
+      player.sendMessage('§alocaterで位置を二か所指定してください');
+      player.sendMessage('§afill_toolで指定範囲を指定したブロックで埋めます');
+      player.sendMessage(
+        '§aslotをオフハンドに、設置したいブロックをインベントリ左上に入れてください'
+      );
     }
   }
 });
