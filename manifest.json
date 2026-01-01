@@ -1,0 +1,28 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "FillSupporterAddon",
+    "description": "FillSupporterAddon",
+    "uuid": "6fe5ace9-4a51-4e8e-a7e6-e215baccb2f8",
+    "version": [1, 0, 1],
+    "min_engine_version": [1, 21, 10]
+  },
+  "modules": [
+    {
+      "type": "script",
+      "uuid": "feaf86e8-ef84-42e3-9565-0290b237cece",
+      "entry": "scripts/main.js",
+      "version": [0, 1, 0]
+    }
+  ],
+  "dependencies": [
+    {
+      "module_name": "@minecraft/server",
+      "version": "1.10.0"
+    },
+    {
+      "module_name": "@minecraft/server-ui",
+      "version": "1.1.0"
+    }
+  ]
+}

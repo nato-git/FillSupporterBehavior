@@ -1,0 +1,22 @@
+{
+  "name": "fillsupporterbehavior",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nato-git/FillSupporterBehavior.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nato-git/FillSupporterBehavior/issues"
+  },
+  "homepage": "https://github.com/nato-git/FillSupporterBehavior#readme",
+  "dependencies": {
+    "@minecraft/server": "^2.4.0"
+  }
+}
