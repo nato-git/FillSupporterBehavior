@@ -1,4 +1,5 @@
 import * as server from '@minecraft/server';
+import * as ui from '@minecraft/server-ui';
 
 const playerPositions = new Map();
 
@@ -30,12 +31,9 @@ server.world.afterEvents.itemUse.subscribe((ev) => {
       player.sendMessage('§c座標個数が足りません Insufficient coordinates');
       return;
     }
-    player.sendMessage(`§e[Debug] インベントリを検索中...`);
     const blockId = getBlockFromSlot(player);
     if (!blockId) {
-      player.sendMessage(
-        '§cブロックが見つかりません (fill:slotの中にブロックを入れてください)'
-      );
+      player.sendMessage('§cブロックが見つかりません');
       return;
     }
 
@@ -45,21 +43,89 @@ server.world.afterEvents.itemUse.subscribe((ev) => {
     const p1 = list[0];
     const p2 = list[1];
 
-    const command = `fill ${p1.x} ${p1.y} ${p1.z} ${p2.x} ${p2.y} ${p2.z} ${blockId}`;
+    const mode = get_score('fill_mode', player);
+    const fillMode = ['', 'destroy', 'hollow', 'outline', 'keep', 'replace'];
+    var command = '';
+    var blockId_Second = '';
+    if (mode != 5) {
+      command = `fill ${p1.x} ${p1.y} ${p1.z} ${p2.x} ${p2.y} ${p2.z} ${blockId} ${fillMode[mode]}`;
+    } else {
+      blockId_Second = getBlockFromSlot_Second(player);
+      if (!blockId_Second) {
+        player.sendMessage('§c第二ブロックが見つかりません');
+        return;
+      }
+      command = `fill ${p1.x} ${p1.y} ${p1.z} ${p2.x} ${p2.y} ${p2.z} ${blockId} replace ${blockId_Second}`;
+    }
     player
       .runCommandAsync(command)
       .then(() => {
         player.sendMessage('§aFill Success!');
       })
       .catch((err) => {
-        player.sendMessage(`§cError: '${blockId}' は無効なブロックIDです`);
+        if (mode != 5) {
+          player.sendMessage(`§cError: '${blockId}'は無効なブロックIDです`);
+          return;
+        } else {
+          player.sendMessage(
+            `§cError: '${blockId}' 、もしくは${blockId_Second}は無効なブロックIDです`
+          );
+        }
       });
+  } else if (item.typeId === 'fill:phone') {
+    phoneUi(player);
   }
 });
+
+function phoneUi(player) {
+  const form = new ui.ActionFormData();
+  form.title('Fill Mode');
+  const forms = ['Normal', 'Destroy', 'Hollow', 'Outline', 'Keep', 'Replace'];
+  for (const modes of forms) {
+    form.button(modes);
+  }
+  form.show(player).then((response) => {
+    if (response.canceled) {
+      return;
+    } else {
+      const mode = response.selection;
+      player.sendMessage(`Selected mode: ${forms[mode]}`);
+      player.runCommandAsync(`scoreboard players set @s fill_mode ${mode}`);
+    }
+  });
+}
+
+function get_score(score_name, player_name) {
+  try {
+    const scoreboard = server.world.scoreboard; // スコアボードを取得
+    let objective = scoreboard.getObjective(score_name); //スコア名を取得
+    let score = objective.getScore(player_name.scoreboardIdentity); //player_name(プレイヤー)のscore_name(スコア名)のスコアを取得
+    if (score != undefined) {
+      //scoreが見つかったとき
+      return score; //scoreを取得
+    } else {
+      return 0; //scoreが見つからなかったとき
+    }
+  } catch {
+    return 0; //scoreboardが定義されていないかも？
+  }
+}
 
 function getBlockFromSlot(player) {
   const inventory = player.getComponent('minecraft:inventory').container;
   const slotItem = inventory.getItem(9);
+  const offhand = player
+    .getComponent('minecraft:equippable')
+    .getEquipment('Offhand');
+  if (slotItem && offhand.typeId === 'fill:slot') {
+    return slotItem.typeId;
+  } else {
+    return null;
+  }
+}
+function getBlockFromSlot_Second(player) {
+  const inventory = player.getComponent('minecraft:inventory').container;
+  const slotItem = inventory.getItem(17);
   const offhand = player
     .getComponent('minecraft:equippable')
     .getEquipment('Offhand');
@@ -77,10 +143,15 @@ server.system.afterEvents.scriptEventReceive.subscribe((ev) => {
       player.runCommandAsync(`give @s fill:locater`);
       player.runCommandAsync(`give @s fill:fill_tool`);
       player.runCommandAsync(`give @s fill:slot`);
-      player.sendMessage('§alocaterで位置を二か所指定してください');
-      player.sendMessage('§afill_toolで指定範囲を指定したブロックで埋めます');
+      player.runCommandAsync(`give @s fill:phone`);
+      player.runCommandAsync(`scoreboard objectives add fill_mode dummy`);
+      player.runCommandAsync(`scoreboard players set @s fill_mode 0`);
       player.sendMessage(
-        '§aslotをオフハンドに、設置したいブロックをインベントリ左上に入れてください'
+        `§alocaterで位置を二か所指定してください
+fill_toolで指定範囲を指定したブロックで埋めます
+slotをオフハンドに、設置したいブロックをインベントリ左上に入れてください
+phoneでモード変更ができます
+replaceモードを使う場合、インベントリ右上に第二ブロックを入れてください`
       );
     }
   }
