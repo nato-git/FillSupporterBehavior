@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "esbuild scripts/main.js --bundle --outfile=scripts/dist/bundle.js --format=esm --external:@minecraft/server --external:@minecraft/server-ui"
   },
   "repository": {
     "type": "git",
@@ -17,6 +17,10 @@
   },
   "homepage": "https://github.com/nato-git/FillSupporterBehavior#readme",
   "dependencies": {
-    "@minecraft/server": "^2.4.0"
+    "@minecraft/server": "^2.4.0",
+    "scoreboard-support": "github:nato-git/ScoreboardSupport-in-scriptapi"
+  },
+  "devDependencies": {
+    "esbuild": "^0.27.2"
   }
 }

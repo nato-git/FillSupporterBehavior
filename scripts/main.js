@@ -1,5 +1,6 @@
 import * as server from '@minecraft/server';
 import * as ui from '@minecraft/server-ui';
+import * as score from 'scoreboard-support';
 
 const playerPositions = new Map();
 
@@ -43,7 +44,7 @@ server.world.afterEvents.itemUse.subscribe((ev) => {
     const p1 = list[0];
     const p2 = list[1];
 
-    const mode = get_score('fill_mode', player);
+    const mode = score.get_score('fill_mode', player);
     const fillMode = ['', 'destroy', 'hollow', 'outline', 'keep', 'replace'];
     var command = '';
     var blockId_Second = '';
@@ -93,22 +94,6 @@ function phoneUi(player) {
       player.runCommandAsync(`scoreboard players set @s fill_mode ${mode}`);
     }
   });
-}
-
-function get_score(score_name, player_name) {
-  try {
-    const scoreboard = server.world.scoreboard; // スコアボードを取得
-    let objective = scoreboard.getObjective(score_name); //スコア名を取得
-    let score = objective.getScore(player_name.scoreboardIdentity); //player_name(プレイヤー)のscore_name(スコア名)のスコアを取得
-    if (score != undefined) {
-      //scoreが見つかったとき
-      return score; //scoreを取得
-    } else {
-      return 0; //scoreが見つからなかったとき
-    }
-  } catch {
-    return 0; //scoreboardが定義されていないかも？
-  }
 }
 
 function getBlockFromSlot(player) {

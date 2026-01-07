@@ -11,7 +11,7 @@
     {
       "type": "script",
       "uuid": "feaf86e8-ef84-42e3-9565-0290b237cece",
-      "entry": "scripts/main.js",
+      "entry": "scripts/dist/bundle.js",
       "version": [1, 0, 1]
     },
     {
