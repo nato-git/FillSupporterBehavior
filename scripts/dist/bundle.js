@@ -61,8 +61,7 @@ server2.world.afterEvents.itemUse.subscribe((ev) => {
     var blockId_Second = "";
     if (!blockId) {
       command = `fill ${p1.x} ${p1.y} ${p1.z} ${p2.x} ${p2.y} ${p2.z} minecraft:air ${fillMode[mode]}`;
-    }
-    if (mode != 5) {
+    } else if (mode != 5) {
       command = `fill ${p1.x} ${p1.y} ${p1.z} ${p2.x} ${p2.y} ${p2.z} ${blockId} ${fillMode[mode]}`;
     } else {
       blockId_Second = getBlockFromSlot_Second(player);
