@@ -48,17 +48,20 @@ server2.world.afterEvents.itemUse.subscribe((ev) => {
       return;
     }
     const blockId = getBlockFromSlot(player);
-    if (!blockId) {
-      player.sendMessage("\xA7c\u30D6\u30ED\u30C3\u30AF\u304C\u898B\u3064\u304B\u308A\u307E\u305B\u3093");
-      return;
+    if (blockId) {
+      player.sendMessage(`\xA7bExecuting: ${blockId}`);
+    } else {
+      player.sendMessage(`\xA7bExecuting: minecraft:air`);
     }
-    player.sendMessage(`\xA7bExecuting: ${blockId}`);
     const p1 = list[0];
     const p2 = list[1];
     const mode = get_score("fill_mode", player);
     const fillMode = ["", "destroy", "hollow", "outline", "keep", "replace"];
     var command = "";
     var blockId_Second = "";
+    if (!blockId) {
+      command = `fill ${p1.x} ${p1.y} ${p1.z} ${p2.x} ${p2.y} ${p2.z} minecraft:air ${fillMode[mode]}`;
+    }
     if (mode != 5) {
       command = `fill ${p1.x} ${p1.y} ${p1.z} ${p2.x} ${p2.y} ${p2.z} ${blockId} ${fillMode[mode]}`;
     } else {

@@ -33,13 +33,14 @@ server.world.afterEvents.itemUse.subscribe((ev) => {
       return;
     }
     const blockId = getBlockFromSlot(player);
-    if (!blockId) {
-      player.sendMessage('§cブロックが見つかりません');
-      return;
-    }
 
     // 設置用メッセージ
-    player.sendMessage(`§bExecuting: ${blockId}`);
+
+    if (blockId) {
+      player.sendMessage(`§bExecuting: ${blockId}`);
+    } else {
+      player.sendMessage(`§bExecuting: minecraft:air`);
+    }
 
     const p1 = list[0];
     const p2 = list[1];
@@ -48,6 +49,9 @@ server.world.afterEvents.itemUse.subscribe((ev) => {
     const fillMode = ['', 'destroy', 'hollow', 'outline', 'keep', 'replace'];
     var command = '';
     var blockId_Second = '';
+    if (!blockId) {
+      command = `fill ${p1.x} ${p1.y} ${p1.z} ${p2.x} ${p2.y} ${p2.z} minecraft:air ${fillMode[mode]}`;
+    }
     if (mode != 5) {
       command = `fill ${p1.x} ${p1.y} ${p1.z} ${p2.x} ${p2.y} ${p2.z} ${blockId} ${fillMode[mode]}`;
     } else {
